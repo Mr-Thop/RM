@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Search, Users, BookOpen, Mail, Star, ExternalLink } from "lucide-react"
 import SmartOutputRenderer from "@/components/smart-output-renderer"
+import CreativeLoadingScreen from "@/components/creative-loading-screen"
 
 interface CollaborationMatch {
   name: string
@@ -74,11 +75,27 @@ export default function ResearchCollaborationPlatform() {
     setResults(null)
     setApiOutput(null)
 
-    // Simulate loading stages
-    for (let i = 0; i < loadingStages.length; i++) {
-      setLoadingStage(loadingStages[i])
-      await new Promise((resolve) => setTimeout(resolve, 800))
-    }
+    // Don't simulate loading stages here anymore - let CreativeLoadingScreen handle it
+    // Just set loading to true and let the component manage the experience
+
+    // Simulate loading stages for the creative loading screen
+    const stageMessages = [
+      "Analyzing your research query...",
+      "Searching academic databases...",
+      "Finding potential collaborators...",
+      "Processing research matches...",
+      "Generating recommendations...",
+    ]
+
+    let currentStageIndex = 0
+    const stageInterval = setInterval(() => {
+      if (currentStageIndex < stageMessages.length) {
+        setLoadingStage(stageMessages[currentStageIndex])
+        currentStageIndex++
+      } else {
+        clearInterval(stageInterval)
+      }
+    }, 24000) // 24 seconds per stage for 2 minute total
 
     try {
       // First try to check if the backend is available
@@ -144,6 +161,7 @@ export default function ResearchCollaborationPlatform() {
     } finally {
       setLoading(false)
       setLoadingStage("")
+      clearInterval(stageInterval)
     }
   }
 
@@ -265,6 +283,8 @@ export default function ResearchCollaborationPlatform() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50">
+      <CreativeLoadingScreen isVisible={loading} currentStage={loadingStage} onComplete={() => setLoading(false)} />
+
       {/* Hero Section */}
       <section className="relative py-20 px-4 text-center">
         <div className="max-w-4xl mx-auto">
